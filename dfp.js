@@ -3,16 +3,21 @@ const fs = require('fs');
 function delete_existing_outputFile(outputFile) {
   if (fs.existsSync(outputFile)) {
     fs.unlinkSync(outputFile);
+    console.log('1')
   }
 }
 
 function transform_data(data, delimiter) {
+   lines = data.split('\n')
+   transformedLines = [];
+   
+   for (let x = 1; x < lines.length; i++){
+     const line = lines[x]
+     const [review, sentiment] = line.split(delimiter)
+     const trimmedReview = review.trim().substring(0,20)
 
-  // 1. need to split data into lines
-  // 2. Iterate through lines, skipping the header
-  // 3. For each line:
-  //    - Split by delimiter
-  //    - Trim review to 20 characters
+   }
+
   //    - Swap column order
   //    - Join with delimiter
   // 4. Return transformed data as a string to be used in parseFile
@@ -32,6 +37,7 @@ function parseFile(inputFile, outputFile, delimiter = ';') {
 //When the read is successful, the input file data and delimiter is parsed to be transformed
     } else {            
       const transformed_data = transform_data(data, delimiter); //stores formatted data from function in variable
+      console.log('3')
 
 //attempts to write formatted data to file, if unsuccessful -1 is returned otherwise number of exported records is returned
       fs.writeFile(outputFile, transformed_data, 'utf8', (err) => {
