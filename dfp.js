@@ -1,53 +1,56 @@
 const fs = require('fs');
 
-function deleteExistingOutputFile() {   //purpose of this function is to delete output file if it already exists before writing new data 
-  if (fs.existsSync('outputfile.csv')) {      //checks if a file with the name store in output file exists in the current directory
-    fs.unlinkSync('outputfile.csv');          // deletes it using fs.unlinkSync()
+function delete_existing_outputFile(outputFile) {
+  if (fs.existsSync(outputFile)) {
+    fs.unlinkSync(outputFile);
   }
 }
 
+function transform_data(data, delimiter) {
+
+  // 1. need to split data into lines
+  // 2. Iterate through lines, skipping the header
+  // 3. For each line:
+  //    - Split by delimiter
+  //    - Trim review to 20 characters
+  //    - Swap column order
+  //    - Join with delimiter
+  // 4. Return transformed data as a string to be used in parseFile
+}
 
 
-function parseFile (indata, outdata, delimiter = ';') {
-  deleteExistingOutputFile()
-  indata = fs.readFile('datafile.csv', 'utf8', function (err, data) {});
-  outdata =  fs.readFile('outputfile.csv', 'utf8', function (err, data) {});
+//Function handles file operations, error handling for files, and calls for transformation.
+function parseFile(inputFile, outputFile, delimiter = ';') {
+  delete_existing_outputFile(outputFile);
 
-    // 1. Split the data into lines based on newline characters
-  const lines = indata.split('\n');
-  console.log(lines)
-    // 2. Create an array to store the transformed lines (excluding the header)
-  const transformedLines = [];
-    // 3. Iterate through the lines, starting from the second line (index 1 to skip the header)
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i];
-      // 4. Split each line into columns using the provided delimiter
-      const [review, sentiment] = line.split(delimiter);
-      // 5. Trim the review to a maximum of 20 characters
-      const trimmedReview = review.trim().substring(0, 20);
-      // 6. Swap the column order (sentiment first, then trimmed review) and join them with the delimiter
-      const transformedLine = `${sentiment}${delimiter}${trimmedReview}`;
-      // 7. Add the transformed line to the array
-      transformedLines.push(transformedLine);
+  //trys to read the file in UTF-8 encoding, if this fails program returns -1.
+  fs.readFile(inputFile, 'utf8', (err, data) => {
+    if (err) {
+      console.error("Failed to read the file:", err);
+      return -1; 
+
+//When the read is successful, the input file data and delimiter is parsed to be transformed
+    } else {            
+      const transformed_data = transform_data(data, delimiter); //stores formatted data from function in variable
+
+//attempts to write formatted data to file, if unsuccessful -1 is returned otherwise number of exported records is returned
+      fs.writeFile(outputFile, transformed_data, 'utf8', (err) => {
+        if (err) {
+          console.error("Failed to write to the file:", err);
+          return -1; 
+        } else {
+          // Calculate and return the number of records exported
+          const exportedRecords = transformedData.split('\n').length - 1; // minusing 1 to not include the header
+          console.log(`File parsed and saved successfully. Records exported: ${exportedRecords}`);
+          return exportedRecords;
+        }
+      });
     }
-    // 8. Join the transformed lines with newline characters to create the output string
-    const transformedData = transformedLines.join('\n');
-    // 9. Return the transformed data
-    return transformedData;
-  }  
-  
-
-parseFile('datafile.csv','outputfile.csv')
+  });
+}
 
 
-
-
-//fs.readFile('outputfile.csv', 'utf8', function (err, data) {
-//  console.log(data)
-//});
-
-
-
+parseFile('datafile.csv', 'outputfile.csv');
 
 
 
