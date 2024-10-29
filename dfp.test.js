@@ -86,6 +86,7 @@ describe('Data File Parser function tests', () => {
         
         expect( parseFile( test_input, test_output ) ).toBe( test_exported );
         expect( fs.readFileSync(test_output).toString() ).toBe( test_output_string );
+        
       
       });
 
