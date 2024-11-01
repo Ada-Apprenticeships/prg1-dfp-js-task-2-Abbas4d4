@@ -7,59 +7,65 @@ function delete_existing_outputFile(outputFile) {
 }
 
 
-
+// Transforms data from the input file: trims and limits text, reorders format, and applies specified delimiter.
 function transform_data(data, delimiter = ';') {
-  const lines = data.split('\n'); // Split data by newline
-  console.log(lines.length)
-  const transformedLines = [];
-  //delimiter = lines[0].at(6)
+  const lines = data.split('\n'); // Split input data into lines by newline
+  const transformedLines = []; // Array to hold reformatted lines
 
+
+  // Iterate over each line starting from index 1, skipping the header row
   for (let x = 1; x < lines.length; x++) {
     const line = lines[x];
-    const [review, sentiment] = line.split(delimiter);
-    const trimmedReview = review.trim().substring(0, 20);
-    const trimmedSentiment = sentiment.trim()
-    const transformedLine = `${trimmedSentiment}${delimiter}${trimmedReview}`; // Ensuring no extra spaces around delimiter
+    const [review, sentiment] = line.split(delimiter); // Split line into review and sentiment based on delimiter
+    const trimmedReview = review.trim().substring(0, 20); // Trim and limit review text to the first 20 characters
+    const trimmedSentiment = sentiment.trim(); 
+
+
+    // Reformat each line as "sentiment;review", using specified delimiter
+    const transformedLine = `${trimmedSentiment}${delimiter}${trimmedReview}`;
     transformedLines.push(transformedLine);
   }
 
-  // Move `return transformedData` outside the loop to get all lines transformed
-  const transformedData = transformedLines.join('\n'); // Join transformed lines with newlines
-  return transformedData;
+  // Join all transformed lines with newlines to create the final formatted output
+  const transformedData = transformedLines.join('\n');
+  return transformedData; // Return the transformed data as string
 }
 
 
 
-// Function handles file operations, error handling for files, and calls for transformation.
+// Handles file i/o, error handling, and transformation logic.
 function parseFile(inputFile, outputFile, delimiter) {
   delete_existing_outputFile(outputFile);
+
+  // Try to read the input file in UTF-8 encoding, returning -1 if unsuccessfull
   let data;
-  // Try to read the file in UTF-8 encoding, if this fails the program returns -1.
   try {
     data = fs.readFileSync(inputFile, 'utf8');
   } catch (err) {
     return -1;
   }
-  // Transform the data using the provided delimiter
+
+  // Transform the content of the input file using the specified delimiter
   const transformed_data = transform_data(data, delimiter);
+
   try {
     fs.writeFileSync(outputFile, transformed_data + "\n", 'utf8');
 
-    // Calculate and return the number of records exported
+    // Count and return number of records in transfromed_data
     const exportedRecords = transformed_data.split('\n').length;
-    console.log(`File parsed and saved successfully. Records exported: ${exportedRecords}`);
     return exportedRecords;
+
   } catch (err) {
-    return -1;
+    return -1; // Return -1 to indicate an error occurred during file write
   }
 }
 
 
-delimiter = ';'
-// Run the parseFile function
+
+delimiter = ';';
 parseFile('datafile.csv', 'outputfile.csv', delimiter);
 
-// Export for testing purposes
+// Export the parseFile function for testing purposes
 module.exports = {
   parseFile,
 };
